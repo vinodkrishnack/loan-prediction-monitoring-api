@@ -4,7 +4,14 @@ import joblib
 import numpy as np
 import os
 
+
+
 app = FastAPI()
+
+@app.get("/")
+async def prediction_root():
+    return {"message": "Welcome to the Prediction API"}
+
 
 # Dynamically resolve path relative to this file's location
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # One level up from app/
