@@ -7,7 +7,17 @@ import joblib
 from scipy.stats import ks_2samp
 import matplotlib.pyplot as plt
 
+
+
+
+
+
 app = FastAPI()
+
+@app.get("/")
+async def monitoring_root():
+    return {"message": "Welcome to the Monitoring API"}
+
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
