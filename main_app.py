@@ -1,13 +1,19 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug 25 13:31:56 2025
-
-@author: Admin
-"""
-
 import sys
 import os
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+
+# ✅ Define your FastAPI app FIRST
+main_app = FastAPI(title="Combined Loan Prediction & Monitoring API")
+
+# ✅ Now you can safely use main_app
+@main_app.get("/")
+async def root():
+    return {
+        "message": "Welcome to the Combined API. Visit /predict/ or /monitoring/."
+    }
+    # Or auto-redirect:
+    # return RedirectResponse(url="/predict")
 
 # Add your app folders to sys.path so imports work
 sys.path.append(os.path.join(os.path.dirname(__file__), "app"))
@@ -16,8 +22,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "app1"))
 # Import the FastAPI app instances from your existing apps
 from app.main import app as prediction_app
 from app1.main import app as monitoring_app
-
-main_app = FastAPI(title="Combined Loan Prediction & Monitoring API")
 
 # Mount each app at a prefix path
 main_app.mount("/predict", prediction_app)
