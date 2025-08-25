@@ -1,0 +1,9 @@
+scikit-learn
+pandas
+matplotlib
+mlflow
+fairlearn
+fastapi
+uvicorn
+joblib
+scipy

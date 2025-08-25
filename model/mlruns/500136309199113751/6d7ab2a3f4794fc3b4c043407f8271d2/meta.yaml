@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Admin/credit/model/mlruns/500136309199113751/6d7ab2a3f4794fc3b4c043407f8271d2/artifacts
+end_time: 1756103993810
+entry_point_name: ''
+experiment_id: '500136309199113751'
+lifecycle_stage: active
+run_id: 6d7ab2a3f4794fc3b4c043407f8271d2
+run_name: nimble-shad-676
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756103980706
+status: 4
+tags: []
+user_id: Admin

@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Admin/credit/mlruns/837438272121528574/55cb88faa7724ef9be069a1ac7b00a08/artifacts
+end_time: 1756122101098
+entry_point_name: ''
+experiment_id: '837438272121528574'
+lifecycle_stage: active
+run_id: 55cb88faa7724ef9be069a1ac7b00a08
+run_name: skittish-tern-970
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756122100955
+status: 3
+tags: []
+user_id: Admin

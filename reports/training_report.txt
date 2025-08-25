@@ -1,0 +1,4 @@
+Model Training Report
+=====================
+Accuracy: 1.0000
+Fairness (Demographic Parity Difference): 0.0000
