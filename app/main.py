@@ -4,20 +4,16 @@ import joblib
 import numpy as np
 import os
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
-
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can restrict this to your frontend domain in production
+    allow_origins=["*"],  # Or use ["https://ml-frontend-91qc.vercel.app"] for more security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/")
 async def prediction_root():
