@@ -7,6 +7,14 @@ import joblib
 from scipy.stats import ks_2samp
 import matplotlib.pyplot as plt
 
+from starlette.responses import Response
+from starlette.staticfiles import StaticFiles as StarletteStaticFiles
+
+class CORSEnabledStaticFiles(StarletteStaticFiles):
+    async def get_response(self, path, scope):
+        response: Response = await super().get_response(path, scope)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
 
 
 
@@ -26,7 +34,9 @@ REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 # Mount /static to serve report images
-app.mount("/static", StaticFiles(directory=REPORTS_DIR), name="static")
+# Mount /static with CORS-enabled static files
+app.mount("/static", CORSEnabledStaticFiles(directory=REPORTS_DIR), name="static")
+
 
 # Load model
 model = joblib.load(MODEL_PATH)
