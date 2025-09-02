@@ -111,7 +111,7 @@ def run_monitoring():
     html += f"<h3>Fairness Metrics:</h3><p>{fairness['metric']}: {fairness['value']}</p>"
 
     html += "<h2>Drift Plot</h2>"
-    html += '<img src="/static/data_drift_plot.png" alt="Data Drift Plot">'
+    html += '<img src="/monitoring/static/data_drift_plot.png" alt="Data Drift Plot">'
     html += "</body></html>"
 
     with open(os.path.join(REPORTS_DIR, "monitoring_report.html"), "w", encoding="utf-8") as f:
