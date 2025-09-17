@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+'''from fastapi import FastAPI
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import os
@@ -134,4 +134,189 @@ def get_report_file():
     path = os.path.join(REPORTS_DIR, "monitoring_report.html")
     if os.path.exists(path):
         return FileResponse(path, media_type="text/html")
-    return JSONResponse(status_code=404, content={"error": "Report not found"})
+    return JSONResponse(status_code=404, content={"error": "Report not found"})'''
+
+
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+import json
+import os
+import random
+
+app = FastAPI(title="Monitoring API")
+
+# ----------------------------
+# Mount the reports folder
+# ----------------------------
+# This will serve files in C:/Users/Admin/credit/reports at /reports/ URL
+app.mount("/reports", StaticFiles(directory="C:/Users/Admin/credit/reports"), name="reports")
+
+# ----------------------------
+# Path to results JSON
+# ----------------------------
+RESULTS_FILE = "C:/Users/Admin/credit/reports/monitoring_results.json"
+
+
+# ----------------------------
+# Root endpoint
+# ----------------------------
+@app.get("/")
+def root():
+    return {"message": "Monitoring Root"}
+
+
+# ----------------------------
+# Run Monitoring
+# ----------------------------
+@app.get("/run-monitoring")
+def run_monitoring():
+    """
+    Simulate monitoring run.
+    Replace this with actual drift, fairness, and performance calculations.
+    """
+    # Simulated data drift
+    data_drift = {
+        "income": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.2, 0.8), 4)},
+        "credit_score": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.2, 0.8), 4)},
+        "gender": {"drift": "NO DRIFT", "p_value": 1.0},
+        "employment_status": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.2, 0.8), 4)},
+    }
+
+    # Fairness metrics
+    fairness = {"mean_approval_diff": round(random.uniform(0.2, 0.5), 4)}
+
+    # Model quality metrics
+    model_quality = {
+        "accuracy": round(random.uniform(0.8, 0.95), 4),
+        "precision": round(random.uniform(0.75, 0.9), 4),
+        "recall": round(random.uniform(0.7, 0.9), 4),
+        "f1_score": round(random.uniform(0.7, 0.9), 4),
+    }
+
+    # Operations metrics
+    operations = {
+        "latency_ms": random.randint(80, 250),
+        "throughput_rps": random.randint(50, 150),
+    }
+
+    # Dynamic suggestions
+    suggestions = []
+    if model_quality["accuracy"] < 0.85 or model_quality["f1_score"] < 0.8:
+        suggestions.append("Consider retraining the model with more recent or balanced data.")
+    if fairness["mean_approval_diff"] > 0.3:
+        suggestions.append("Investigate fairness issues; consider reweighting or adding fairness constraints.")
+    if operations["latency_ms"] > 200:
+        suggestions.append("Optimize inference pipeline to reduce latency (e.g., batch processing).")
+    if operations["throughput_rps"] < 50:
+        suggestions.append("Increase throughput by scaling API or optimizing model serving.")
+    if len(suggestions) == 0:
+        suggestions.append("All metrics are within acceptable range. Continue monitoring.")
+
+    # Path for drift plot
+    drift_plot_path = "/reports/data_drift_plot.png"
+
+    results = {
+        "data_drift": data_drift,
+        "fairness": fairness,
+        "model_quality": model_quality,
+        "operations": operations,
+        "suggestions": suggestions,
+        "drift_plot": drift_plot_path
+    }
+
+    os.makedirs(os.path.dirname(RESULTS_FILE), exist_ok=True)
+    with open(RESULTS_FILE, "w") as f:
+        json.dump(results, f, indent=4)
+
+    return {"message": "Monitoring run completed.", "file": RESULTS_FILE}
+
+
+# ----------------------------
+# Get JSON report (inline)
+# ----------------------------
+@app.get("/report")
+def get_report():
+    if os.path.exists(RESULTS_FILE):
+        with open(RESULTS_FILE, "r") as f:
+            data = json.load(f)
+        return JSONResponse(content=data)
+    return JSONResponse(content={"error": "No report found. Run /run-monitoring first."}, status_code=404)
+
+
+# ----------------------------
+# Get HTML report (dashboard)
+# ----------------------------
+@app.get("/report-html", response_class=HTMLResponse)
+def get_report_html():
+    try:
+        if not os.path.exists(RESULTS_FILE):
+            return HTMLResponse("<h3>No report found. Run /run-monitoring first.</h3>", status_code=404)
+
+        with open(RESULTS_FILE, "r") as f:
+            results = json.load(f)
+
+        # Safely get values
+        data_drift = results.get("data_drift", {})
+        fairness = results.get("fairness", {})
+        model_quality = results.get("model_quality", {})
+        operations = results.get("operations", {})
+        suggestions = results.get("suggestions", [])
+        drift_plot = results.get("drift_plot", "")
+
+        # Build HTML blocks
+        drift_html = "".join(
+            f"<div class='card'><h3>{feature}</h3><p>{info.get('drift','N/A')} (p={info.get('p_value','N/A')})</p></div>"
+            for feature, info in data_drift.items()
+        )
+
+        quality_html = "".join(
+            f"<div class='card'><h3>{metric}</h3><p>{value}</p></div>"
+            for metric, value in model_quality.items()
+        )
+
+        operations_html = "".join(
+            f"<div class='card'><h3>{metric}</h3><p>{value}</p></div>"
+            for metric, value in operations.items()
+        )
+
+        suggestions_html = "".join(f"<li>{s}</li>" for s in suggestions)
+
+        html_content = f"""
+        <html>
+        <head><title>ML- Observability Monitoring Dashboard</title>
+        <style>
+        body {{ font-family: Arial; background:#f9f9f9; padding:20px; }}
+        h1 {{ text-align:center; color:#333; }}
+        h2 {{ margin-top:40px; color:#444; }}
+        .container {{ display:flex; flex-wrap:wrap; gap:15px; }}
+        .card {{ background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); flex:1 1 200px; text-align:center; }}
+        ul {{ background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }}
+        img {{ display:block; margin:auto; max-width:90%; }}
+        </style>
+        </head>
+        <body>
+        <h1>ML- Observability Monitoring Dashboard</h1>
+
+        <h2>Data Drift Results</h2><div class="container">{drift_html}</div>
+
+        <h2>Fairness Metrics</h2>
+        <div class="container"><div class="card"><h3>Mean Approval Difference (M-F)</h3><p>{fairness.get('mean_approval_diff','N/A')}</p></div></div>
+
+        <h2>Model Quality</h2><div class="container">{quality_html}</div>
+
+        <h2>Operations</h2><div class="container">{operations_html}</div>
+
+        <h2>Suggestions to Improve</h2><ul>{suggestions_html}</ul>
+
+        <h2>Drift Plot</h2><div class="container">
+        {"<img src='"+drift_plot+"' alt='Data Drift Plot'/>" if drift_plot else "<p>No plot available</p>"}
+        </div>
+
+        </body></html>
+        """
+
+        return HTMLResponse(content=html_content)
+
+    except Exception as e:
+        return HTMLResponse(f"<h3>Error generating dashboard: {e}</h3>", status_code=500)
