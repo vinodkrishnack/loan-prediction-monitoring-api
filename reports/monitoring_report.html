@@ -1,1 +1,37 @@
-<html><head><title>Monitoring Report</title></head><body><h2>Data Drift Results </h2><ul><li>income: NO DRIFT (p=0.2952)</li><li>credit_score: NO DRIFT (p=0.2952)</li><li>gender: NO DRIFT (p=1.0)</li><li>employment_status: NO DRIFT (p=0.6952)</li></ul><h3>Fairness Metrics:</h3><p>Mean Approval Difference (M-F): 0.3333</p><h2>Drift Plot</h2><img src="/monitoring/static/data_drift_plot.png" alt="Data Drift Plot"></body></html>
+
+    <html>
+    <head>
+    <title>Loan Prediction Monitoring Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin:20px; }
+        .card { border:1px solid #ddd; padding:10px; margin:10px; display:inline-block; min-width:200px; }
+        .title { font-weight:bold; font-size:18px; margin-bottom:5px; }
+        img { max-width:500px; height:auto; }
+    </style>
+    </head>
+    <body>
+        <h1>Loan Prediction Monitoring Dashboard</h1>
+
+        <h2>Data Drift Results</h2>
+        <div class='card'><div class='title'>income</div>NO DRIFT (p=0.4345)</div><div class='card'><div class='title'>credit_score</div>NO DRIFT (p=0.5778)</div><div class='card'><div class='title'>gender</div>NO DRIFT (p=1.0)</div><div class='card'><div class='title'>employment_status</div>NO DRIFT (p=0.7626)</div>
+
+        <h2>Fairness Metrics</h2>
+        <div class='card'>Mean Approval Difference (M-F): 0.276</div>
+
+        <h2>Model Quality</h2>
+        <div class='card'><div class='title'>accuracy</div>0.8334</div><div class='card'><div class='title'>precision</div>0.7307</div><div class='card'><div class='title'>recall</div>0.8627</div><div class='card'><div class='title'>f1_score</div>0.8029</div>
+
+        <h2>Operations</h2>
+        <div class='card'>Latency (ms): 248</div>
+        <div class='card'>Throughput (rps): 81</div>
+
+        <h2>Suggestions to Improve</h2>
+        <ul>
+        <li>Fairness metric is high. Investigate potential bias and adjust dataset or model.</li><li>F1-score is below 0.85. Consider hyperparameter tuning or additional features.</li><li>Precision is low. Review false positive cases and adjust feature engineering.</li><li>Latency is high. Optimize model inference or consider batch processing.</li>
+        </ul>
+
+        <h2>Drift Plot</h2>
+        <img src="reports/data_drift_plot.png" alt="Data Drift Plot"/>
+    </body>
+    </html>
+    

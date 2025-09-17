@@ -2,11 +2,11 @@
     "data_drift": {
         "income": {
             "drift": "NO DRIFT",
-            "p_value": 0.3884
+            "p_value": 0.4345
         },
         "credit_score": {
             "drift": "NO DRIFT",
-            "p_value": 0.4835
+            "p_value": 0.5778
         },
         "gender": {
             "drift": "NO DRIFT",
@@ -14,24 +14,27 @@
         },
         "employment_status": {
             "drift": "NO DRIFT",
-            "p_value": 0.7163
+            "p_value": 0.7626
         }
     },
     "fairness": {
-        "mean_approval_diff": 0.3192
+        "mean_approval_diff": 0.276
     },
     "model_quality": {
-        "accuracy": 0.8995,
-        "precision": 0.7509,
-        "recall": 0.8977,
-        "f1_score": 0.8496
+        "accuracy": 0.8334,
+        "precision": 0.7307,
+        "recall": 0.8627,
+        "f1_score": 0.8029
     },
     "operations": {
-        "latency_ms": 192,
-        "throughput_rps": 150
+        "latency_ms": 248,
+        "throughput_rps": 81
     },
+    "drift_plot": "reports/data_drift_plot.png",
     "suggestions": [
-        "Investigate fairness issues; consider reweighting or adding fairness constraints."
-    ],
-    "drift_plot": "/reports/data_drift_plot.png"
+        "Fairness metric is high. Investigate potential bias and adjust dataset or model.",
+        "F1-score is below 0.85. Consider hyperparameter tuning or additional features.",
+        "Precision is low. Review false positive cases and adjust feature engineering.",
+        "Latency is high. Optimize model inference or consider batch processing."
+    ]
 }
