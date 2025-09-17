@@ -351,7 +351,7 @@ import matplotlib.pyplot as plt
 # Ensure reports folder exists
 os.makedirs("reports", exist_ok=True)
 
-app = FastAPI(title="Loan Prediction Monitoring")
+app = FastAPI(title="ML Observability Monitoring Dashboard")
 
 # Mount reports folder for static files
 app.mount("/reports", StaticFiles(directory=os.path.join(os.getcwd(), "reports")), name="reports")
@@ -447,7 +447,7 @@ def save_html_report(data):
     html_content = f"""
     <html>
     <head>
-    <title>Loan Prediction Monitoring Dashboard</title>
+    <title>ML Observability Monitoring Dashboard</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin:20px; }}
         .card {{ border:1px solid #ddd; padding:10px; margin:10px; display:inline-block; min-width:200px; }}
@@ -456,7 +456,7 @@ def save_html_report(data):
     </style>
     </head>
     <body>
-        <h1>Loan Prediction Monitoring Dashboard</h1>
+        <h1>ML Observability Monitoring Dashboard</h1>
 
         <h2>Data Drift Results</h2>
         {"".join([f"<div class='card'><div class='title'>{k}</div>{v['drift']} (p={v['p_value']})</div>" for k,v in data['data_drift'].items()])}
