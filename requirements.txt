@@ -4,6 +4,8 @@ matplotlib
 mlflow
 fairlearn
 fastapi
-uvicorn
 joblib
 scipy
+uvicorn[standard]
+numpy
+

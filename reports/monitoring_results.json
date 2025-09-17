@@ -1,0 +1,37 @@
+{
+    "data_drift": {
+        "income": {
+            "drift": "NO DRIFT",
+            "p_value": 0.3884
+        },
+        "credit_score": {
+            "drift": "NO DRIFT",
+            "p_value": 0.4835
+        },
+        "gender": {
+            "drift": "NO DRIFT",
+            "p_value": 1.0
+        },
+        "employment_status": {
+            "drift": "NO DRIFT",
+            "p_value": 0.7163
+        }
+    },
+    "fairness": {
+        "mean_approval_diff": 0.3192
+    },
+    "model_quality": {
+        "accuracy": 0.8995,
+        "precision": 0.7509,
+        "recall": 0.8977,
+        "f1_score": 0.8496
+    },
+    "operations": {
+        "latency_ms": 192,
+        "throughput_rps": 150
+    },
+    "suggestions": [
+        "Investigate fairness issues; consider reweighting or adding fairness constraints."
+    ],
+    "drift_plot": "/reports/data_drift_plot.png"
+}

@@ -144,13 +144,31 @@ import json
 import os
 import random
 
+import os
+from fastapi.staticfiles import StaticFiles
+
+# Ensure reports folder exists
+os.makedirs("reports", exist_ok=True)
+
+
+
+
+
+
 app = FastAPI(title="Monitoring API")
 
 # ----------------------------
 # Mount the reports folder
 # ----------------------------
 # This will serve files in C:/Users/Admin/credit/reports at /reports/ URL
-app.mount("/reports", StaticFiles(directory="C:/Users/Admin/credit/reports"), name="reports")
+#app.mount("/reports", StaticFiles(directory="C:/Users/Admin/credit/reports"), name="reports")
+#app.mount("/reports", StaticFiles(directory=os.path.join(os.getcwd(), "reports")), name="reports")
+
+# Mount reports folder dynamically
+app.mount("/reports", StaticFiles(directory=os.path.join(os.getcwd(), "reports")), name="reports")
+
+
+
 
 # ----------------------------
 # Path to results JSON
