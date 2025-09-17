@@ -137,7 +137,7 @@ def get_report_file():
     return JSONResponse(status_code=404, content={"error": "Report not found"})'''
 
 
-from fastapi import FastAPI
+'''from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import json
@@ -337,4 +337,195 @@ def get_report_html():
         return HTMLResponse(content=html_content)
 
     except Exception as e:
-        return HTMLResponse(f"<h3>Error generating dashboard: {e}</h3>", status_code=500)
+        return HTMLResponse(f"<h3>Error generating dashboard: {e}</h3>", status_code=500)'''
+
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+import os
+import json
+import random
+import time
+import matplotlib.pyplot as plt
+
+# Ensure reports folder exists
+os.makedirs("reports", exist_ok=True)
+
+app = FastAPI(title="Loan Prediction Monitoring")
+
+# Mount reports folder for static files
+app.mount("/reports", StaticFiles(directory=os.path.join(os.getcwd(), "reports")), name="reports")
+
+# -------------------------
+# Helper functions
+# -------------------------
+def generate_mock_metrics():
+    """Generate mock metrics for demonstration."""
+    return {
+        "data_drift": {
+            "income": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.3,1.0),4)},
+            "credit_score": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.3,1.0),4)},
+            "gender": {"drift": "NO DRIFT", "p_value": 1.0},
+            "employment_status": {"drift": "NO DRIFT", "p_value": round(random.uniform(0.3,1.0),4)}
+        },
+        "fairness": {
+            "mean_approval_diff": round(random.uniform(0,0.5),4)
+        },
+        "model_quality": {
+            "accuracy": round(random.uniform(0.75,0.85),4),
+            "precision": round(random.uniform(0.7,0.8),4),
+            "recall": round(random.uniform(0.8,0.9),4),
+            "f1_score": round(random.uniform(0.8,0.9),4)
+        },
+        "operations": {
+            "latency_ms": random.randint(150,250),
+            "throughput_rps": random.randint(40,100)
+        },
+              # This is where you specify the drift plot path
+        "drift_plot": "reports/data_drift_plot.png"
+    }
+
+def generate_dynamic_suggestions(data):
+    """Generate dynamic suggestions based on metrics."""
+    suggestions = []
+
+    # Data drift
+    for feature, stats in data['data_drift'].items():
+        if stats['drift'] != "NO DRIFT":
+            suggestions.append(f"Consider retraining or monitoring feature '{feature}' due to drift (p={stats['p_value']}).")
+
+    # Fairness
+    if data['fairness']['mean_approval_diff'] > 0.2:
+        suggestions.append("Fairness metric is high. Investigate potential bias and adjust dataset or model.")
+
+    # Model quality
+    if data['model_quality']['f1_score'] < 0.85:
+        suggestions.append("F1-score is below 0.85. Consider hyperparameter tuning or additional features.")
+    if data['model_quality']['precision'] < 0.75:
+        suggestions.append("Precision is low. Review false positive cases and adjust feature engineering.")
+
+    # Operations
+    if data['operations']['latency_ms'] > 200:
+        suggestions.append("Latency is high. Optimize model inference or consider batch processing.")
+    if data['operations']['throughput_rps'] < 50:
+        suggestions.append("Throughput is low. Scale horizontally or optimize API endpoints.")
+
+    # Default if everything is fine
+    if not suggestions:
+        suggestions.append("Model is performing well. Continue monitoring regularly.")
+
+    return suggestions
+def create_drift_plot(data):
+    """
+    Generate a bar chart showing p-values for data drift of each feature.
+    Save plot as reports/data_drift_plot.png.
+    """
+    features = list(data['data_drift'].keys())
+    p_values = [data['data_drift'][f]['p_value'] for f in features]
+    
+    plt.figure(figsize=(6,4))
+    bars = plt.bar(features, p_values, color='skyblue')
+    plt.axhline(y=0.05, color='r', linestyle='--', label='Significance threshold (0.05)')
+    plt.title("Data Drift p-values per Feature")
+    plt.ylabel("p-value")
+    plt.ylim(0,1)
+    
+    # Add values on top of bars
+    for bar, val in zip(bars, p_values):
+        plt.text(bar.get_x() + bar.get_width()/2, val + 0.02, f"{val:.2f}", ha='center')
+    
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("reports/data_drift_plot.png")
+    plt.close()
+def save_json_report(data):
+    with open("reports/monitoring_results.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def save_html_report(data):
+    """Generate HTML dashboard."""
+    html_content = f"""
+    <html>
+    <head>
+    <title>Loan Prediction Monitoring Dashboard</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin:20px; }}
+        .card {{ border:1px solid #ddd; padding:10px; margin:10px; display:inline-block; min-width:200px; }}
+        .title {{ font-weight:bold; font-size:18px; margin-bottom:5px; }}
+        img {{ max-width:500px; height:auto; }}
+    </style>
+    </head>
+    <body>
+        <h1>Loan Prediction Monitoring Dashboard</h1>
+
+        <h2>Data Drift Results</h2>
+        {"".join([f"<div class='card'><div class='title'>{k}</div>{v['drift']} (p={v['p_value']})</div>" for k,v in data['data_drift'].items()])}
+
+        <h2>Fairness Metrics</h2>
+        <div class='card'>Mean Approval Difference (M-F): {data['fairness']['mean_approval_diff']}</div>
+
+        <h2>Model Quality</h2>
+        {"".join([f"<div class='card'><div class='title'>{k}</div>{v}</div>" for k,v in data['model_quality'].items()])}
+
+        <h2>Operations</h2>
+        <div class='card'>Latency (ms): {data['operations']['latency_ms']}</div>
+        <div class='card'>Throughput (rps): {data['operations']['throughput_rps']}</div>
+
+        <h2>Suggestions to Improve</h2>
+        <ul>
+        {"".join([f"<li>{s}</li>" for s in data['suggestions']])}
+        </ul>
+
+        <h2>Drift Plot</h2>
+        <img src="{data['drift_plot']}" alt="Data Drift Plot"/>
+    </body>
+    </html>
+    """
+    with open("reports/monitoring_report.html", "w") as f:
+        f.write(html_content)
+
+# -------------------------
+# -------------------------
+# Endpoints
+# -------------------------
+
+@app.get("/")
+def root():
+    return {"message": "Monitoring Root"}
+
+@app.get("/run-monitoring")
+def run_monitoring():
+    start_time = time.time()
+    
+    # Generate metrics
+    data = generate_mock_metrics()
+    
+    # Dynamic suggestions
+    data['suggestions'] = generate_dynamic_suggestions(data)
+    
+    # Create drift plot
+    create_drift_plot(data)
+    
+    # Save JSON and HTML reports
+    save_json_report(data)
+    save_html_report(data)
+    
+    end_time = time.time()
+    return {"status": "Monitoring completed", "time_seconds": round(end_time-start_time,2)}
+
+@app.get("/report-html", response_class=HTMLResponse)
+def report_html():
+    html_file = "reports/monitoring_report.html"
+    if os.path.exists(html_file):
+        with open(html_file, "r") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h3>No report found</h3>")
+
+@app.get("/report")
+def report_json():
+    json_file = "reports/monitoring_results.json"
+    if os.path.exists(json_file):
+        with open(json_file, "r") as f:
+            data = json.load(f)
+        return data
+    return {"message": "No JSON report found"}
